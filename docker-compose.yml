@@ -1,0 +1,41 @@
+version: "3"
+    
+services:
+  web:
+    image: nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "80:80"
+    environment:
+      - NGINX_PORT=80
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: wiki
+      POSTGRES_PASSWORD: 9QQ95PRaTVqwT7fU
+      POSTGRES_USER: wiki_user
+    logging:
+      driver: "none"
+    restart: unless-stopped
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      
+  wiki:
+    image: ghcr.io/requarks/wiki:2.5
+    depends_on:
+      - db
+    environment:
+      DB_TYPE: postgres
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: wiki_user
+      DB_PASS: 9QQ95PRaTVqwT7fU
+      DB_NAME: wiki
+    restart: unless-stopped
+    # ports:
+    #   - "80:3000"
+
+volumes:
+  db-data:
