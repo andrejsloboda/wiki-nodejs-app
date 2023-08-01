@@ -1,4 +1,4 @@
-version: "3"
+version: "3.3"
     
 services:
   web:
@@ -15,14 +15,16 @@ services:
   db:
     image: postgres:15-alpine
     environment:
-      POSTGRES_DB: wiki
-      POSTGRES_PASSWORD: 9QQ95PRaTVqwT7fU
       POSTGRES_USER: wiki_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_pass
+      POSTGRES_DB: wiki
     restart: unless-stopped
     volumes:
       - db-data:/var/lib/postgresql/data
     networks:
       - backend_network
+    secrets:
+      - db_pass
       
   wiki:
     image: ghcr.io/requarks/wiki:2.5
@@ -33,12 +35,14 @@ services:
       DB_HOST: db
       DB_PORT: 5432
       DB_USER: wiki_user
-      DB_PASS: 9QQ95PRaTVqwT7fU
+      DB_PASS_FILE: /run/secrets/db_pass
       DB_NAME: wiki
     restart: unless-stopped
     networks:
       - proxy_network
       - backend_network
+    secrets:
+      - db_pass
 
 volumes:
   db-data:
@@ -49,3 +53,7 @@ networks:
 
   backend_network:
     driver: bridge
+
+secrets:
+  db_pass:
+    file: ./secrets/db_pass.txt
