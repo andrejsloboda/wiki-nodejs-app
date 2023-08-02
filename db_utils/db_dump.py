@@ -1,6 +1,7 @@
 import os
 import logging
 from zipfile import ZipFile
+from zipfile import ZIP_DEFLATED
 from argparse import ArgumentParser
 
 logger = logging.getLogger()
@@ -19,11 +20,11 @@ def run(container, user_name, database, destination):
     try:
         os.system(f"docker exec {container} pg_dump -U {user_name} {database} > {destination}/wiki_dump.sql")
         
-        with ZipFile(f'{destination}/wiki_dump.zip', 'w') as zip_file:
-            zip_file.write(f'{destination}/wiki_dump.sql')
+        with ZipFile(f'{destination}/wiki_dump.zip', 'w', compression=ZIP_DEFLATED) as zip_file:
+            zip_file.write(f'{destination}/wiki_dump.sql', arcname='wiki_dump.sql')
 
         logger.info("Database dump created.")
-        
+
         os.system(f"rm -f {destination}/wiki_dump.sql")
     
     except Exception as e:
