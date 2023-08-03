@@ -1,0 +1,59 @@
+version: "3.3"
+    
+services:
+  web:
+    image: nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "80:80"
+    environment:
+      - NGINX_PORT=80
+    networks:
+      - proxy_network
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: wiki_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_pass
+      POSTGRES_DB: wiki
+    restart: unless-stopped
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - backend_network
+    secrets:
+      - db_pass
+      
+  wiki:
+    image: ghcr.io/requarks/wiki:2.5
+    depends_on:
+      - db
+    environment:
+      DB_TYPE: postgres
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: wiki_user
+      DB_PASS_FILE: /run/secrets/db_pass
+      DB_NAME: wiki
+    restart: unless-stopped
+    networks:
+      - proxy_network
+      - backend_network
+    secrets:
+      - db_pass
+
+volumes:
+  db-data:
+    
+networks:
+  proxy_network:
+    driver: bridge
+
+  backend_network:
+    driver: bridge
+
+secrets:
+  db_pass:
+    file: ./secrets/db_pass.txt
