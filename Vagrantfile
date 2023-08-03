@@ -14,8 +14,8 @@ Vagrant.configure("2") do |config|
   # boxes at https://vagrantcloud.com/search.
   config.vm.box = "ubuntu/jammy64"
 
-  config.vm.provision :docker
-  config.vm.provision :docker_compose, yml: "/vagrant/docker-compose.yml", rebuild: true, run: "always"
+  # config.vm.provision :docker
+  # config.vm.provision :docker_compose, yml: "/vagrant/docker-compose.yml", rebuild: true, run: "always"
 
   config.vm.provider "virtualbox" do |v|
     v.memory = 2048
@@ -26,4 +26,7 @@ Vagrant.configure("2") do |config|
   config.vm.network "public_network"
   config.vm.network "forwarded_port", guest: 80, host: 80, protocol: "tcp"
 
+  config.vm.provision "ansible_local" do |ansible|
+    ansible.playbook = "./ansible/playbook.yml"
+  end
 end

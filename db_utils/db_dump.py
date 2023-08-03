@@ -24,7 +24,6 @@ def run(container, user_name, database, destination):
             zip_file.write(f'{destination}/wiki_dump.sql', arcname='wiki_dump.sql')
 
         logger.info("Database dump created.")
-
         os.system(f"rm -f {destination}/wiki_dump.sql")
     
     except Exception as e:
