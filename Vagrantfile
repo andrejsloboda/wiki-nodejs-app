@@ -22,7 +22,6 @@ Vagrant.configure("2") do |config|
     v.cpus = 4
   end
 
-  # public network => bridged
   config.vm.network "public_network"
   config.vm.network "forwarded_port", guest: 80, host: 80, protocol: "tcp"
 
